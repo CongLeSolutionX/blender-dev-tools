@@ -35,7 +35,7 @@ def compute_paths(paths, use_default_paths):
     else:
         paths = [
             f for f in paths
-            if os.path.isfile(f) and f.endswith(extensions)
+            if not os.path.isfile(f) or f.endswith(extensions)
         ]
 
     if os.sep != "/":
