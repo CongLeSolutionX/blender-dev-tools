@@ -1187,8 +1187,15 @@ def apply_edit(data: str, text_to_replace: str, start: int, end: int, *, verbose
     return data
 
 
-def wash_source_with_edits(arg_group: Tuple[str, str, Sequence[str], Optional[str], str, bool, Any]) -> None:
-    (source, output, build_args, build_cwd, edit_to_apply, skip_test, shared_edit_data) = arg_group
+def wash_source_with_edits(
+        source: str,
+        output: str,
+        build_args: Sequence[str],
+        build_cwd: Optional[str],
+        edit_to_apply: str,
+        skip_test: bool,
+        shared_edit_data: Any,
+) -> None:
     # build_args = build_args + " -Werror=duplicate-decl-specifier"
     with open(source, 'r', encoding='utf-8') as fh:
         data = fh.read()
@@ -1397,12 +1404,12 @@ def run_edits_on_directory(
             import multiprocessing
             job_total = multiprocessing.cpu_count()
             pool = multiprocessing.Pool(processes=job_total * 2)
-            pool.map(wash_source_with_edits, args_expanded)
+            pool.starmap(wash_source_with_edits, args_expanded)
             del args_expanded
         else:
             # now we have commands
             for c, build_args, build_cwd in args_with_cwd:
-                wash_source_with_edits((
+                wash_source_with_edits(
                     c,
                     output_from_build_args(build_args, build_cwd),
                     build_args,
@@ -1410,7 +1417,7 @@ def run_edits_on_directory(
                     edit_to_apply,
                     skip_test,
                     shared_edit_data,
-                ))
+                )
     except Exception as ex:
         raise ex
     finally:
