@@ -39,6 +39,7 @@ BLACKLIST = set(
         "source/tools/check_source/check_licenses.py",
         "source/tools/check_source/check_spelling.py",
         "source/tools/check_source/check_unused_defines.py",
+        "source/tools/check_wiki/check_wiki_file_structure.py",
         "source/tools/utils_maintenance/blender_menu_search_coverage.py",
         "source/tools/utils_maintenance/blender_update_themes.py",
         "source/tools/utils_maintenance/clang_format_paths.py",
