@@ -32,7 +32,7 @@ PATHS = tuple(
     for p in PATHS
 )
 
-BLACKLIST: Set[str] = set(
+PATHS_EXCLUDE: Set[str] = set(
     os.path.join(SOURCE_DIR, p.replace("/", os.sep))
     for p in
     (

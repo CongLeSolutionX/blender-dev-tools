@@ -25,7 +25,7 @@ PATHS: Tuple[Tuple[str, Tuple[Any, ...], Dict[str, str]], ...] = (
 SOURCE_DIR = os.path.normpath(os.path.abspath(os.path.normpath(
     os.path.join(os.path.dirname(__file__), "..", "..", ".."))))
 
-BLACKLIST = set(
+PATHS_EXCLUDE = set(
     os.path.join(SOURCE_DIR, p.replace("/", os.sep))
     for p in
     (

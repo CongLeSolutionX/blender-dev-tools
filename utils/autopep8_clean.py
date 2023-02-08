@@ -5,7 +5,7 @@ import subprocess
 import os
 from os.path import join, splitext
 
-from autopep8_clean_config import PATHS, BLACKLIST
+from autopep8_clean_config import PATHS, PATHS_EXCLUDE
 
 from typing import (
     Callable,
@@ -27,7 +27,7 @@ SOURCE_EXT = (
 def is_source_and_included(filename: str) -> bool:
     return (
         filename.endswith(SOURCE_EXT) and
-        filename not in BLACKLIST
+        filename not in PATHS_EXCLUDE
     )
 
 
