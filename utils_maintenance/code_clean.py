@@ -537,7 +537,7 @@ class edit_generators:
         """
         @staticmethod
         def edit_list_from_file(source: str, data: str, _shared_edit_data: Any) -> List[Edit]:
-            edits = []
+            edits: List[Edit] = []
 
             # The user might exclude C++, if they forget, it is better not to operate on C.
             if not source.lower().endswith((".h", ".c")):
@@ -1343,7 +1343,7 @@ def wash_source_with_edits(
 def run_edits_on_directory(
         build_dir: str,
         regex_list: List[re.Pattern[str]],
-        edit_to_apply: str,
+        edits_to_apply: Sequence[str],
         skip_test: bool = False,
 ) -> int:
     # currently only supports ninja or makefiles
@@ -1431,30 +1431,15 @@ def run_edits_on_directory(
         print(" ", c)
     del args_orig_len
 
-    edit_generator_class = edit_class_from_id(edit_to_apply)
+    for i, edit_to_apply in enumerate(edits_to_apply):
+        print("Applying edit:", edit_to_apply, "({:d} of {:d})".format(i + 1, len(edits_to_apply)))
+        edit_generator_class = edit_class_from_id(edit_to_apply)
 
-    shared_edit_data = edit_generator_class.setup()
+        shared_edit_data = edit_generator_class.setup()
 
-    try:
-        if USE_MULTIPROCESS:
-            args_expanded = [(
-                c,
-                output_from_build_args(build_args, build_cwd),
-                build_args,
-                build_cwd,
-                edit_to_apply,
-                skip_test,
-                shared_edit_data,
-            ) for (c, build_args, build_cwd) in args_with_cwd]
-            import multiprocessing
-            job_total = multiprocessing.cpu_count()
-            pool = multiprocessing.Pool(processes=job_total * 2)
-            pool.starmap(wash_source_with_edits, args_expanded)
-            del args_expanded
-        else:
-            # now we have commands
-            for c, build_args, build_cwd in args_with_cwd:
-                wash_source_with_edits(
+        try:
+            if USE_MULTIPROCESS:
+                args_expanded = [(
                     c,
                     output_from_build_args(build_args, build_cwd),
                     build_args,
@@ -1462,20 +1447,35 @@ def run_edits_on_directory(
                     edit_to_apply,
                     skip_test,
                     shared_edit_data,
-                )
-    except Exception as ex:
-        raise ex
-    finally:
-        edit_generator_class.teardown(shared_edit_data)
+                ) for (c, build_args, build_cwd) in args_with_cwd]
+                import multiprocessing
+                job_total = multiprocessing.cpu_count()
+                pool = multiprocessing.Pool(processes=job_total * 2)
+                pool.starmap(wash_source_with_edits, args_expanded)
+                del args_expanded
+            else:
+                # now we have commands
+                for c, build_args, build_cwd in args_with_cwd:
+                    wash_source_with_edits(
+                        c,
+                        output_from_build_args(build_args, build_cwd),
+                        build_args,
+                        build_cwd,
+                        edit_to_apply,
+                        skip_test,
+                        shared_edit_data,
+                    )
+        except Exception as ex:
+            raise ex
+        finally:
+            edit_generator_class.teardown(shared_edit_data)
 
     print("\n" "Exit without errors")
     return 0
 
 
-def create_parser() -> argparse.ArgumentParser:
+def create_parser(edits_all: Sequence[str]) -> argparse.ArgumentParser:
     from textwrap import indent, dedent
-
-    edits_all = edit_function_get_all()
 
     # Create docstring for edits.
     edits_all_docs = []
@@ -1503,10 +1503,12 @@ def create_parser() -> argparse.ArgumentParser:
         help="Match file paths against this expression",
     )
     parser.add_argument(
-        "--edit",
-        dest="edit",
-        choices=edits_all,
-        help="Specify the edit preset to run.\n\n" + "\n".join(edits_all_docs) + "\n",
+        "--edits",
+        dest="edits",
+        help=(
+            "Specify the edit preset to run.\n\n" +
+            "\n".join(edits_all_docs) + "\n"
+            "Multiple edits may be passed at once (comma separated, no spaces)."),
         required=True,
     )
     parser.add_argument(
@@ -1525,7 +1527,8 @@ def create_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
-    parser = create_parser()
+    edits_all = edit_function_get_all()
+    parser = create_parser(edits_all)
     args = parser.parse_args()
 
     build_dir = args.build_dir
@@ -1538,7 +1541,20 @@ def main() -> int:
             print(f"Error in expression: {expr}\n  {ex}")
             return 1
 
-    return run_edits_on_directory(build_dir, regex_list, args.edit, args.skip_test)
+    edits_all_from_args = args.edits.split(",")
+    if not edits_all_from_args:
+        print("Error, no '--edits' arguments given!")
+        return 1
+
+    for edit in edits_all_from_args:
+        if edit not in edits_all:
+            print("Error, unrecognized '--edits' argument '{:s}', expected a value in {{{:s}}}".format(
+                edit,
+                ", ".join(edits_all),
+            ))
+            return 1
+
+    return run_edits_on_directory(build_dir, regex_list, edits_all_from_args, args.skip_test)
 
 
 if __name__ == "__main__":
