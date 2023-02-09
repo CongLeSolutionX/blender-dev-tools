@@ -31,6 +31,9 @@ import os
 import argparse
 import sphobjinv as soi
 
+# The root of Blender's source directory.
+BASE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..")
+
 
 def write_mappings(inv, output):
     print("Writing...")
@@ -121,7 +124,7 @@ def main():
     parser.add_argument(
         "--output",
         dest="output",
-        default="../../../release/scripts/modules/rna_manual_reference.py",
+        default=os.path.join(BASE_DIR, "release", "scripts", "modules", "rna_manual_reference.py"),
         required=False,
         help="path to output including filename and extentsion",
         metavar="FILE")
