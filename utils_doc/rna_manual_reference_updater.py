@@ -29,10 +29,35 @@ URL is the: url_manual_prefix + url_manual_mapping[#id]
 
 import os
 import argparse
+import re
 import sphobjinv as soi
 
 # The root of Blender's source directory.
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..")
+
+# Names that don't match this regex can't be used as URL's.
+re_name_sanity_match = re.compile("[a-zA-Z0-9._*]+")
+
+
+def sphobjinv_sanity_check(o):
+    """
+    Ensure ``o`` can be used to make a URL.
+    """
+    name = o.name
+    # Perhaps other characters could be excluded too.
+    if not re_name_sanity_match.fullmatch(name):
+        m = re_name_sanity_match.match(name)
+        fail_char = 0
+        if m:
+            fail_char = m.span(0)[1]
+        msg = "WARNING: invalid char found for name:"
+        print(msg, name, "(at index %d)" % fail_char, "skipping!")
+        print(" " * (len(msg) + fail_char), "^")
+        return False
+
+    if " " in name or "/" in name:
+        return False
+    return True
 
 
 def write_mappings(inv, output):
@@ -59,9 +84,14 @@ def write_mappings(inv, output):
 
     fw("url_manual_mapping = (\n")
 
+
+
     # Logic to manipulate strings from objects.inv
-    lines = [o.data_line() for o in inv.objects if o.name.startswith(
-        "bpy.types") or o.name.startswith("bpy.ops")]
+    lines = [
+        o.data_line() for o in inv.objects
+        if o.name.startswith(("bpy.types", "bpy.ops"))
+        if sphobjinv_sanity_check(o)
+    ]
     # Finding first space will return length of rna path
     lines.sort(key=lambda l: l.find(" "), reverse=True)
     for line in lines:
