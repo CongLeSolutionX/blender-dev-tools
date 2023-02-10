@@ -30,7 +30,13 @@ URL is the: url_manual_prefix + url_manual_mapping[#id]
 import os
 import argparse
 import re
-import sphobjinv as soi
+import sys
+
+try:
+    import sphobjinv
+except ImportError:
+    print("The module \"sphobjinv\" was not found, it may be installed via \"pip install sphobjinv\", exiting!")
+    sys.exit(1)
 
 # The root of Blender's source directory.
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..")
@@ -143,11 +149,11 @@ def main():
     if args.filename:
         # Download and decode objects.inv
         print("Loading from file...")
-        inv = soi.Inventory(args.filename)
+        inv = sphobjinv.Inventory(args.filename)
     else:
         # Load and decode objects.inv
         print("Downloading...")
-        inv = soi.Inventory(url=args.url)
+        inv = sphobjinv.Inventory(url=args.url)
 
     write_mappings(inv, args.output)
     print("Done!")
