@@ -46,46 +46,17 @@ def write_mappings(inv, output):
     fw(" This file is auto generated from rna_manual_reference_updater.py\n\n")
     # Prevent systems with autopep8 configured from re-formatting the file.
     fw("# autopep8: off\n")
-    fw("import bpy\n\n")
-    fw("manual_version = '%d.%d' % bpy.app.version[:2]\n\n")
-    fw("url_manual_prefix = \"https://docs.blender.org/manual/en/\" + manual_version + \"/\"\n\n")
-    fw("language = bpy.context.preferences.view.language\n")
-    fw("if language == 'DEFAULT':\n")
-    fw("    import os\n")
-    fw("    language = os.getenv('LANG', '').split('.')[0]\n\n")
-    fw("LANG = {\n")
-    fw("\"ar_EG\":        \"ar\",\n")  # Arabic
-    # fw("\"bg_BG\":        \"bg\",\n")  # Bulgarian
-    # fw("\"ca_AD\":        \"ca\",\n")  # Catalan
-    # fw("\"cs_CZ\":        \"cz\",\n")  # Czech
-    fw("\"de_DE\":        \"de\",\n")  # German
-    # fw("\"el_GR\":        \"el\",\n")  # Greek
-    fw("\"es\":           \"es\",\n")  # Spanish
-    fw("\"fi_FI\":        \"fi\",\n")  # Finnish
-    fw("\"fr_FR\":        \"fr\",\n")  # French
-    fw("\"id_ID\":        \"id\",\n")  # Indonesian
-    fw("\"it_IT\":        \"it\",\n")  # Italian
-    fw("\"ja_JP\":        \"ja\",\n")  # Japanese
-    fw("\"ko_KR\":        \"ko\",\n")  # Korean
-    # fw("\"nb\":           \"nb\",\n")  # Norwegian
-    # fw("\"nl_NL\":        \"nl\",\n")  # Dutch
-    # fw("\"pl_PL\":        \"pl\",\n")  # Polish
-    fw("\"pt_PT\":        \"pt\",\n")  # Portuguese
-    # Portuguese - Brazil, for until we have a pt_BR version
-    fw("\"pt_BR\":        \"pt\",\n")
-    fw("\"ru_RU\":        \"ru\",\n")  # Russian
-    fw("\"sk_SK\":        \"sk\",\n")  # Slovak
-    # fw("\"sl\":           \"sl\",\n")  # Slovenian
-    fw("\"sr_RS\":        \"sr\",\n")  # Serbian
-    # fw("\"sv_SE\":        \"sv\",\n")  # Swedish
-    # fw("\"tr_TR\":        \"th\",\n")  # Thai
-    fw("\"uk_UA\":        \"uk\",\n")  # Ukrainian
-    fw("\"vi_VN\":        \"vi\",\n")  # Vietnamese
-    fw("\"zh_CN\":        \"zh-hans\",\n")  # Simplified Chinese
-    fw("\"zh_TW\":        \"zh-hant\",\n")  # Traditional Chinese
-    fw("}.get(language)\n\n")
-    fw("if LANG is not None:\n")
-    fw("    url_manual_prefix = url_manual_prefix.replace(\"manual/en\", \"manual/\" + LANG)\n\n")
+
+    fw(
+        "import bpy\n"
+        "\n"
+        "url_manual_prefix = \"https://docs.blender.org/manual/%s/%d.%d/\" % (\n"
+        "    bpy.utils.manual_language_code(),\n"
+        "    *bpy.app.version[:2],\n"
+        ")\n"
+        "\n"
+    )
+
     fw("url_manual_mapping = (\n")
 
     # Logic to manipulate strings from objects.inv
