@@ -539,8 +539,8 @@ class edit_generators:
         def edit_list_from_file(source: str, data: str, _shared_edit_data: Any) -> List[Edit]:
             edits: List[Edit] = []
 
-            # The user might exclude C++, if they forget, it is better not to operate on C.
-            if not source.lower().endswith((".h", ".c")):
+            # The user might include C & C++, if they forget, it is better not to operate on C.
+            if source.lower().endswith((".h", ".c")):
                 return edits
 
             # `NULL` -> `nullptr`.
@@ -575,8 +575,8 @@ class edit_generators:
         def edit_list_from_file(source: str, data: str, _shared_edit_data: Any) -> List[Edit]:
             edits: List[Edit] = []
 
-            # The user might exclude C++, if they forget, it is better not to operate on C.
-            if not source.lower().endswith((".h", ".c")):
+            # The user might include C & C++, if they forget, it is better not to operate on C.
+            if source.lower().endswith((".h", ".c")):
                 return edits
 
             # `UNUSED(arg)` -> `/*arg*/`.
