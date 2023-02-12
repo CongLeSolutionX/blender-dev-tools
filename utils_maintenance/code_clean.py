@@ -187,9 +187,14 @@ def run(args: Sequence[str], *, cwd: Optional[str], quiet: bool) -> int:
     else:
         out = subprocess.DEVNULL
 
-    p = subprocess.Popen(args, stdout=out, stderr=out, cwd=cwd)
-    p.wait()
-    return p.returncode
+    with subprocess.Popen(
+            args,
+            stdout=out,
+            stderr=out,
+            cwd=cwd,
+    ) as proc:
+        proc.wait()
+        return proc.returncode
 
 
 # -----------------------------------------------------------------------------
@@ -267,39 +272,39 @@ def find_build_args_ninja(build_dir: str) -> Optional[ProcessedCommands]:
     import time
     cmake_dir = build_dir
     make_exe = "ninja"
-    process = subprocess.Popen(
+    with subprocess.Popen(
         [make_exe, "-t", "commands"],
         stdout=subprocess.PIPE,
         cwd=build_dir,
-    )
-    while process.poll():
-        time.sleep(1)
-    assert process.stdout is not None
+    ) as proc:
+        while proc.poll():
+            time.sleep(1)
+        assert proc.stdout is not None
 
-    out = process.stdout.read()
-    process.stdout.close()
-    # print("done!", len(out), "bytes")
-    data = out.decode("utf-8", errors="ignore").split("\n")
+        out = proc.stdout.read()
+        proc.stdout.close()
+        # print("done!", len(out), "bytes")
+        data = out.decode("utf-8", errors="ignore").split("\n")
     return process_commands(cmake_dir, data)
 
 
 def find_build_args_make(build_dir: str) -> Optional[ProcessedCommands]:
     import time
     make_exe = "make"
-    process = subprocess.Popen(
+    with subprocess.Popen(
         [make_exe, "--always-make", "--dry-run", "--keep-going", "VERBOSE=1"],
         stdout=subprocess.PIPE,
         cwd=build_dir,
-    )
-    while process.poll():
-        time.sleep(1)
-    assert process.stdout is not None
+    ) as proc:
+        while proc.poll():
+            time.sleep(1)
+        assert proc.stdout is not None
 
-    out = process.stdout.read()
-    process.stdout.close()
+        out = proc.stdout.read()
+        proc.stdout.close()
 
-    # print("done!", len(out), "bytes")
-    data = out.decode("utf-8", errors="ignore").split("\n")
+        # print("done!", len(out), "bytes")
+        data = out.decode("utf-8", errors="ignore").split("\n")
     return process_commands(build_dir, data)
 
 
