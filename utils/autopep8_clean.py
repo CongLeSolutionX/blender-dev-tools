@@ -3,7 +3,7 @@
 
 import subprocess
 import os
-from os.path import join, splitext
+from os.path import join
 
 from autopep8_clean_config import PATHS, PATHS_EXCLUDE
 
@@ -95,7 +95,6 @@ def autopep8_format_file(f: str) -> None:
 
 def main() -> None:
     import sys
-    import subprocess
 
     if os.path.samefile(sys.argv[-1], __file__):
         paths = path_expand(PATHS, is_source_and_included)

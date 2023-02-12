@@ -1119,7 +1119,7 @@ class edit_generators:
                     # Currently this is not handled in a clever way, just try add in brackets
                     # and rely on matching build output to know if they were added in the right place.
                     text = match.group(2)
-                    span = (beg, end)
+                    # `span = (beg, end)`.
                     for offset_end in range(end + 1, len(data)):
                         # Not technically correct, but it's rare that this will span lines.
                         if "\n" == data[offset_end]:

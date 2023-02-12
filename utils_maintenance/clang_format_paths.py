@@ -135,7 +135,7 @@ def clang_format_ensure_version() -> Optional[Tuple[int, int, int]]:
         )
         try:
             version_output = subprocess.check_output((clang_format_cmd, "-version")).decode('utf-8')
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             continue
         CLANG_FORMAT_CMD = clang_format_cmd
         break

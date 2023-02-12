@@ -573,7 +573,7 @@ def main():
         messages |= release_log_extract_messages(path)
     args.filter_exclude_releaselogs = messages
 
-    from git_log import GitCommit, GitCommitIter
+    from git_log import GitCommitIter
 
     # --------------
     # Filter Commits

@@ -94,7 +94,7 @@ def autopep8_ensure_version(autopep8_format_cmd_argument: str) -> Optional[Tuple
 
         try:
             version_output = subprocess.check_output((*cmd, "--version")).decode('utf-8')
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             continue
         AUTOPEP8_FORMAT_CMD = autopep8_format_cmd
         break

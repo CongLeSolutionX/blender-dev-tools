@@ -426,7 +426,7 @@ import bpy
 
 def module_classes(mod):
     classes = []
-    for key, value in mod.__dict__.items():
+    for value in mod.__dict__.values():
         try:
             is_subclass = issubclass(value, BaseFakeUI)
         except:
